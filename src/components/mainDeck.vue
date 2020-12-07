@@ -71,43 +71,52 @@
           </v-row>
         </v-container>
       </v-col>
+      <v-dialog v-model='winDialog' overlay-color="white" content-class="elevation-0">
+        <v-img src="../assets/youwin.png" width='350px' style='margin: auto'></v-img>
+        <v-img src="../assets/door-car.png" width='250px' style='margin: auto'></v-img>
+      </v-dialog>
+      <v-dialog v-model='loseDialog' content-class="elevation-0">
+        <v-img src="../assets/youlose.png" width='350px' style='margin: auto'></v-img>
+        <v-img src="../assets/door-goat.png" width='250px' style='margin: auto'></v-img>
+      </v-dialog>
+      <v-col cols="4">
+        <v-btn rounded outlined block class='mx-4' @click="toggleDoors">
+            {{ openBtnDisplay }}
+          </v-btn>
+      </v-col>
+      <v-col cols="4" class='text-center'>
+      <v-dialog v-model="autoDialog" width="500">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn rounded outlined v-bind="attrs" v-on="on" block class='mx-4'>
+            Autoplay
+          </v-btn>
+        </template>
+        <v-card>
+          <v-card-title class="headline">
+            Lauch Autoplay
+          </v-card-title>
+          <v-card-text>
+            Play the game automatically multiple times
+            <v-text-field class='mt-3' label="Repetitions" v-model="autoPlayTimes" type='number' outlined min='1' max='400'></v-text-field>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="error" width="150px" class='mx-1' dark @click="autoDialog = false">
+              Cancel
+            </v-btn>
+            <v-btn color="success" width="150px" class='mx-1' dark @click="launchAutoPlay">
+              GO !
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+      </v-col>
+      <v-col cols="4">
+        <v-btn rounded outlined block class='mx-4' @click="resetStats">
+            Reset Stats
+          </v-btn>
+      </v-col>
     </v-row>
-    <v-dialog v-model='winDialog' overlay-color="white" content-class="elevation-0">
-      <v-img src="../assets/youwin.png" width='350px' style='margin: auto'></v-img>
-      <v-img src="../assets/door-car.png" width='250px' style='margin: auto'></v-img>
-    </v-dialog>
-    <v-dialog v-model='loseDialog' content-class="elevation-0">
-      <v-img src="../assets/youlose.png" width='350px' style='margin: auto'></v-img>
-      <v-img src="../assets/door-goat.png" width='250px' style='margin: auto'></v-img>
-    </v-dialog>
-    <v-col cols="8" class='text-center'>
-    <v-dialog v-model="autoDialog" width="500">
-      <template v-slot:activator="{ on, attrs }">
-        <v-btn rounded outlined v-bind="attrs" v-on="on" width="450px">
-          Autoplay
-        </v-btn>
-      </template>
-      <v-card>
-        <v-card-title class="headline">
-          Lauch Autoplay
-        </v-card-title>
-        <v-card-text>
-          Play the game automatically multiple times
-          <v-text-field class='mt-3' label="Repetitions" v-model="autoPlayTimes" type='number' outlined min='1' max='400'></v-text-field>
-        </v-card-text>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="error" width="150px" class='mx-1' dark @click="autoDialog = false">
-            Cancel
-          </v-btn>
-          <v-btn color="success" width="150px" class='mx-1' dark @click="launchAutoPlay">
-            GO !
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-    </v-col>
   </v-container>
 </template>
 
@@ -128,7 +137,8 @@
       autoDialog: false,
       forceUpdate: 0,
       onAutoPlay: false,
-      autoPlayTimes: 100
+      autoPlayTimes: 100,
+      openBtnDisplay: 'open doors'
     }),
     computed:{
       changeRatio(){
@@ -263,8 +273,10 @@
         if(times > 0){
           this.pickADoor(Math.floor(Math.random()*3));
           this.confirmDoor(Math.floor(Math.random()*2) == 0);
-          console.log(times);
           setTimeout(() => this.autoPlay(--times), 100);
+        } else {
+          this.onAutoPlay = false;
+          setTimeout(() => this.reset(), 500);
         }
       },
       launchAutoPlay(){
@@ -273,6 +285,18 @@
         this.history = {changeWin: 0, changeLose: 0, keepWin: 0, keepLose: 0};
         this.onAutoPlay = true;
         this.autoPlay(Math.min(this.autoPlayTimes, 400))
+      },
+      resetStats(){
+        this.history = {changeWin: 0, changeLose: 0, keepWin: 0, keepLose: 0};
+      },
+      toggleDoors(){
+        if(this.openBtnDisplay == 'open doors'){
+          this.doors.forEach(door => door.open = true);
+          this.openBtnDisplay = 'reset doors';
+        } else {
+          this.reset();
+          this.openBtnDisplay = 'open doors';
+        }
       }
     }
   }
