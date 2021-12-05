@@ -117,13 +117,18 @@
           </v-btn>
       </v-col>
     </v-row>
+    <tutorial :showTutorial='showTutorial'/>
   </v-container>
 </template>
 
 <script>
+  import tutorial from './tutorial';
+
   export default {
     name: 'mainDeck',
+    components: { tutorial },
 
+    props: { showTutorial: Boolean },
     data: () => ({
       globalState: 'start',
       controls: 0,
@@ -138,7 +143,8 @@
       forceUpdate: 0,
       onAutoPlay: false,
       autoPlayTimes: 100,
-      openBtnDisplay: 'open doors'
+      openBtnDisplay: 'open doors',
+      tutorial: true
     }),
     computed:{
       changeRatio(){
@@ -157,31 +163,6 @@
     mounted(){
       this.reset()
     },
-    // watch:{
-    //   doors: {
-    //     immediate: true,
-    //     deep: true,
-    //     handler(val) {
-    //       console.log(val);
-    //       this.doorNames = [];
-    //       val.forEach(door => {
-    //         let name = 'door';
-    //         if(door.open){
-    //           if(door.win){
-    //             name += '-car';
-    //           } else {
-    //             name += '-goat';
-    //           }
-    //         }
-    //         if(door.selected){
-    //           name += '-selected';
-    //         }
-    //         this.doorNames.push(`../assets/${name}.png`);
-    //       });
-    //       console.log(this.doorNames);
-    //     }
-    //   }
-    // },
     methods: {
       reset(){
         this.globalState = 'start';
@@ -225,24 +206,18 @@
           this.globalState = '';
           let win = false;
           if(!val){
-           this.doors.forEach(door => {
-             if(!door.selected && !door.open){
+            this.doors.forEach(door => {
+              door.selected = door.open ? false : !door.selected;
+            });
+          }
+          this.doors.forEach(door => {
+             if(door.selected && !door.open){
                door.open = true;
                if(door.win){
                  win = true;
                }
              }
            });
-          } else {
-            this.doors.forEach(door => {
-              if(door.selected){
-                door.open = true;
-                if(door.win){
-                  win = true;
-                }
-              }
-            });
-          }
           let divider = this.onAutoPlay ? 50 : 1
           if(win){
             if(!this.onAutoPlay){
@@ -297,7 +272,7 @@
           this.reset();
           this.openBtnDisplay = 'open doors';
         }
-      }
+      },
     }
   }
 </script>

@@ -4,6 +4,15 @@ import vuetify from './plugins/vuetify';
 
 Vue.config.productionTip = false
 
+const eventBus = new Vue()
+Vue.mixin({
+  data: function () {
+    return {
+      eventBus: eventBus
+    }
+  }
+});
+
 new Vue({
   vuetify,
   render: h => h(App)
